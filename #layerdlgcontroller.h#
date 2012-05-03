@@ -1,0 +1,41 @@
+#import "constants.h"
+
+class CanvasController;
+class LayeredPainter;
+
+@interface LayerDlgController : UITableViewController 
+<UINavigationControllerDelegate,
+   UIPickerViewDelegate, 
+   UIPickerViewDataSource> {
+@public
+
+  UIView *parent;
+  UINavigationController *layernav;
+
+  CanvasController *canvas;
+  LayeredPainter *painter;
+
+  UIBarButtonItem *done_btn;
+  UISlider *alpha_slider;
+
+  NSInteger layer_index;
+
+  UISwitch *show_hide_switch;
+  UIPickerView *comp_method_picker;
+  UISlider *red_slider, *green_slider, *blue_slider;
+}
+
+- (void)setLayerIndex:(NSInteger)i;
+- (void)setParent:(UIView*)p withCanvas:(CanvasController*)c
+   withNavigation:(UINavigationController*)n;
+- (void)layerSettingChanged:(id)s;
+- (void)alpha_changed:(id)s;
+- (void)done_pressed:(id)s;
+- (UILabel*)colorLabelAtIndex:(int)i;
+- (void)setCellForLayers:(UITableViewCell*)cell 
+		 atIndex:(NSInteger)i;
+- (void)setCellForLayerSettings:(UITableViewCell*)cell
+			atIndex:(NSInteger)i;
+
+@end
+

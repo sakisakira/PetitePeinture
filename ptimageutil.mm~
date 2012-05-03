@@ -1,0 +1,26 @@
+/*
+  PtImageUtil
+  by Saki Sakira <sakira@sun.dhis.portside.net>
+  from 2008 September 4
+ */
+
+#include "ptimageutil.h"
+
+UIImage* PtImageUtil::uint16toUIImage(unsigned short int* buf, int imgw,
+			 int x0, int y0, int w, int h) {
+  CGDataProviderRef providerref;
+  providerref = 
+    CGDataProviderCreateWithData(NULL, 
+				 buf + y0 * imgw + x0, 
+				 imgw * 2 * h, NULL);
+  CGImageRef imgref = 
+    CGImageCreate(w, h, 5, 16, imgw * 2, 
+		  CGColorSpaceCreateDeviceRGB(),
+		  kCGBitmapByteOrder16Host,
+		  providerref, NULL, NO, kCGRenderingIntentDefault);
+  CGDataProviderRelease(providerref);
+  UIImage *img = [UIImage imageWithCGImage:imgref];
+  CGImageRelease(imgref);
+  
+  return img;
+}

@@ -1,0 +1,67 @@
+#ifndef PTPTFORMAT_H
+#define PTPTFORMAT_H
+
+#include <qarray.h>
+#include <qimage.h>
+#include <qstring.h>
+
+#include "constants.h"
+
+class PtptFormat {
+
+  static const QString FileIconPath;
+  
+  typedef struct {
+    uint32 offset;
+    uint32 length;
+    uint comp_method;
+    uint alpha;
+    QColor paper_col;
+  } layer_info;
+
+  uint num_of_layers, cur;
+  QArray<layer_info> layer_infos;
+//  QArray<QImage*> layers;
+  QByteArray data;
+  QString filename;
+  QImage thumbnail;
+  static QImage small_icon;
+  static int small_icon_width, small_icon_height;
+  static int thumbnail_height, thumbnail_width;
+  static QString dot_icon;
+
+  void init_small_icon();
+  void prepare_data(void);
+  void parse_data(void);
+
+public:
+  PtptFormat(uint = 0);
+//  ~PtptFormat(void);
+  
+  static const int TNHeightSmall = 45;
+  static const int TNHeightLarge = 90;
+
+  static QString dotIcon(void) {return dot_icon;};
+  void setNumOfLayers(uint n, bool = false);
+  void addLayer(QImage &);
+  void setCompositionMethod(uint k, uint m);
+  void setAlpha(uint k, uint alpha);
+  void setPaperColor(uint k, const QColor&);
+  static void setTNHeight(int);
+  void setThumbnail(const QImage &);
+  bool saveThumbnail(const QString &);
+  bool save(const QString &);
+
+  static bool isPtpt(const QString &);
+  bool isPtpt(void);
+  
+  uint numOfLayers(void);
+  QImage layer(uint k);
+  uint compositionMethod(uint k);
+  uint alpha(uint k);
+  QColor paperColor(uint k);
+  bool load(const QString &);
+
+};
+
+#endif //	PTPTFORMAT_H

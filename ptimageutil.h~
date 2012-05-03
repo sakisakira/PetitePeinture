@@ -1,0 +1,13 @@
+#ifndef PTIMAGEUTIL_H
+#define PTIMAGEUTIL_H
+
+#import "constants.h"
+
+@class UIImage;
+
+class PtImageUtil {
+public:
+  static UIImage* uint16toUIImage(uint16* buf, int imgw, int x0, int y0, int w, int h);
+};
+
+#endif //  PTIMAGEUTIL_H

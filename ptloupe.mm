@@ -1,0 +1,173 @@
+// PtLoupe.mm
+// by SAkira <sakira@sun.dhis.portside.net>
+// from 2008 September
+
+#import "ptloupe.h"
+#import "ptimageutil.h"
+#import "ptpair.h"
+#import "ptview.h"
+#import "canvascontroller.h"
+
+@implementation PtLoupe
+
+@synthesize _scale;
+@synthesize _alpha;
+@synthesize follow_finger;
+@synthesize cross;
+
+- (id)initWithFrame:(CGRect)rect {
+  if (!(self = [super initWithFrame:rect])) return nil;
+
+  _size = new PtPair([self bounds].size.width, 
+                     [self bounds].size.height);
+  ptview = nil;
+  _center_x = _center_y = -1;
+  bound_color = nil;
+  _scale = 4.0;
+  _alpha = 0.5;
+
+  cross = [[PtLoupeCross alloc]
+	    initWithFrame:rect];
+
+  return self;
+}
+
+- (void)dealloc {
+  delete _size;
+  [bound_color release];
+  [cross release];
+  [super dealloc];
+}
+
+- (void)setup:(PtView*)pv {
+  ptview = pv;
+
+  self.exclusiveTouch = true;
+  self.userInteractionEnabled = NO;
+
+  bound_color = [[UIColor alloc] 
+                  initWithRed:0.5 green:0.5 blue:0.5 alpha:0.5];
+  _fill_color = [[UIColor alloc] 
+                  initWithRed:0.5 green:0.5 blue:0.5 alpha:0.5];
+  CGAffineTransform trans;
+  trans = CGAffineTransformMakeScale(_scale, _scale);
+  self.transform = trans;
+  self.alpha = _alpha;
+  self.hidden = true;
+
+  cross.hidden = YES;
+  cross.opaque = NO;
+  cross.clearsContextBeforeDrawing = YES;
+  cross.userInteractionEnabled = NO;
+
+  [cross setNeedsDisplay];
+}
+
+- (void)setScale:(float)s {
+  _scale = s;
+  CGAffineTransform trans;
+  trans = CGAffineTransformMakeScale(_scale, _scale);
+  self.transform = trans;
+}
+
+- (void)setBufCenterX:(int)x y:(int)y {
+  _center_x = x;
+  _center_y = y;
+}
+
+- (void)setFillColor:(PtColor)col {
+  _center_x = _center_y = -1;
+  [_fill_color release];
+  _fill_color = [[UIColor alloc]
+                  initWithRed:col.red / 255.0
+                  green:col.green / 255.0
+                  blue:col.blue / 255.0
+                  alpha:1.0];
+}
+
+- (void)setPosCenterX:(int)x1 y:(int)y1 {
+	CGFloat s_scale = SingletonJunction::view.scale;
+  float dist = _size->y * _scale * s_scale;
+  CGFloat x2, y2;
+  if (y1 < dist) {
+    x2 = x1;
+    y2 = y1 + dist;
+  } else {
+    x2 = x1;
+    y2 = y1 - dist;
+  }
+
+  self.center = cross.center = 
+	CGPointMake(x2 / s_scale, y2 / s_scale);
+}
+
+- (void)set_bound_color:(PtColor)col {
+  [bound_color release];
+  bound_color = [[UIColor alloc]
+                  initWithRed:col.red / 255.0
+                  green:col.green / 255.0
+                  blue:col.blue / 255.0
+                  alpha:1.0];
+}
+
+- (void)drawRect:(CGRect)rect {
+  // ignore 'rect'
+
+  if (!ptview || !ptview->buf) return;
+
+  if (_center_x < 0) {
+    [_fill_color set];
+    UIRectFill(CGRectMake(0, 0, _size->x, _size->y));
+    return;
+  }
+	CGFloat s_scale = SingletonJunction::view.scale;
+
+  [bound_color set];
+  UIRectFrame(CGRectMake(0, 0, _size->x, _size->y));
+
+  int x0, y0, size_x, size_y;
+  size_x = (_size->x - 2) * s_scale;
+  size_y = (_size->y - 2) * s_scale;
+  x0 = _center_x - (size_x >> 1);
+  y0 = _center_y - (size_y >> 1);
+  if (x0 < 0) x0 = 0;
+  if (y0 < 0) y0 = 0;
+  if (x0 + size_x > ptview->_size->x)
+    x0 = ptview->_size->x - size_x - 1;
+  if (y0 + size_y > ptview->_size->y)
+    y0 = ptview->_size->y - size_y - 1;
+
+  UIImage *img = PtImageUtil::uint16toUIImage(ptview->buf,
+                                              ptview->_size->x,
+                                              x0, y0,
+                                              size_x, size_y);
+  [img drawAtPoint:CGPointMake(1, 1)];
+}
+
+- (void)setHidden:(BOOL)h {
+  [super setHidden:h];
+  [cross setHidden:h];
+}
+
+@end
+
+@implementation PtLoupeCross
+
+- (void)drawRect:(CGRect)rect {
+  // ignore 'rect'
+  
+  CGSize size;
+  CGFloat w, h;
+
+  size = self.frame.size;
+  w = size.width;
+  h = size.height;
+
+  //  [[UIColor whiteColor] set];
+  //  UIRectFill(CGRectMake(0, 0, w, h));
+  [[UIColor blackColor] set];
+  UIRectFrame(CGRectMake(0, h / 2, w, 1));
+  UIRectFrame(CGRectMake(w / 2, 0, 1, h));
+}
+
+@end

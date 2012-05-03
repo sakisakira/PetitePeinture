@@ -1,0 +1,33 @@
+//
+//  ptpanelview.m
+//  touchpeinture
+//
+//  Created by Akira Suzuki on 09/01/31.
+//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//
+
+#import "ptpanelview.h"
+
+
+@implementation ptpanelview
+
+
+- (id)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        // Initialization code
+    }
+    return self;
+}
+
+
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+
+@end
